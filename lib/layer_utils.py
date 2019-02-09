@@ -95,7 +95,7 @@ class flatten(object):
         # You need to reshape (flatten) the input features.                         #
         # Store the results in the variable output provided above.                  #
         #############################################################################
-
+        output = np.reshape(feat, (-1))
         #############################################################################
         #                             END OF YOUR CODE                              #
         #############################################################################
@@ -112,7 +112,7 @@ class flatten(object):
         # You need to reshape (flatten) the input gradients and return.             #
         # Store the results in the variable dfeat provided above.                  #
         #############################################################################
-
+        dfeat = np.reshape(dprev, self.meta.shape)
         #############################################################################
         #                             END OF YOUR CODE                              #
         #############################################################################
@@ -152,7 +152,11 @@ class fc(object):
         # You will probably need to reshape the input features.                     #
         # Store the results in the variable output provided above.                  #
         #############################################################################
-
+        
+        reshaped_feat = np.reshape(feat, (-1, self.input_dim))
+        output = np.transpose(np.matmal(reshaped_feat, self.params[self.w_name])
+                                   + np.tile(self.params[self.b_name],
+                                                       tuple(list(feat.shape[:-1])+[self.output_dim])))
         #############################################################################
         #                             END OF YOUR CODE                              #
         #############################################################################
@@ -202,7 +206,7 @@ class relu(object):
         # TODO: Implement the forward pass of a rectified linear unit               #
         # Store the results in the variable output provided above.                  #
         #############################################################################
-
+        output = np.maximum(np.zeros(feat.shape), feat)
         #############################################################################
         #                             END OF YOUR CODE                              #
         #############################################################################
