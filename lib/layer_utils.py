@@ -223,7 +223,7 @@ class relu(object):
         # TODO: Implement the backward pass of a rectified linear unit              #
         # Store the output gradients in the variable dfeat provided above.          #
         #############################################################################
-
+        dfeat = (feat > 0).astype(int) * dprev
         #############################################################################
         #                             END OF YOUR CODE                              #
         #############################################################################
