@@ -95,7 +95,7 @@ class flatten(object):
         # You need to reshape (flatten) the input features.                         #
         # Store the results in the variable output provided above.                  #
         #############################################################################
-        output = np.reshape(feat, (-1))
+        output = np.reshape(feat, (feat.shape[0], -1))
         #############################################################################
         #                             END OF YOUR CODE                              #
         #############################################################################
@@ -112,7 +112,7 @@ class flatten(object):
         # You need to reshape (flatten) the input gradients and return.             #
         # Store the results in the variable dfeat provided above.                  #
         #############################################################################
-        dfeat = np.reshape(dprev, self.meta.shape)
+        dfeat = np.reshape(dprev, feat.shape)
         #############################################################################
         #                             END OF YOUR CODE                              #
         #############################################################################
@@ -154,9 +154,9 @@ class fc(object):
         #############################################################################
         
         reshaped_feat = np.reshape(feat, (-1, self.input_dim))
-        output = np.transpose(np.matmal(reshaped_feat, self.params[self.w_name])
-                                   + np.tile(self.params[self.b_name],
-                                                       tuple(list(feat.shape[:-1])+[self.output_dim])))
+        tile_b = np.tile(self.params[self.b_name], (reshaped_feat.shape[0], 1))
+        output = np.matmul(reshaped_feat, self.params[self.w_name]) + tile_b
+        
         #############################################################################
         #                             END OF YOUR CODE                              #
         #############################################################################
@@ -180,6 +180,20 @@ class fc(object):
         # Store the output gradients in the variable dfeat provided above.          #
         #############################################################################
 
+        dprev = np.reshape(dprev, (-1, self.output_dim))
+        
+        # Calculate gradient wrt weights
+        reshaped_feat = np.transpose(np.reshape(self.meta, (-1, self.input_dim)))
+        self.grads[self.w_name] = np.matmul(reshaped_feat, dprev)
+        
+        # Calculate gradient wrt biases
+        self.grads[self.b_name] = np.sum(dprev, axis = 0)    
+        
+        # Calculate gradient wrt variable
+        dfeat = np.matmul(dprev, np.transpose(self.params[self.w_name]))    
+        dfeat = np.reshape(dfeat, feat.shape)
+        
+        
         #############################################################################
         #                             END OF YOUR CODE                              #
         #############################################################################
@@ -264,7 +278,13 @@ class dropout(object):
         # Store the mask in the variable kept provided above.                       #
         # Store the results in the variable output provided above.                  #
         #############################################################################
-
+        if is_training and self.keep_prob > 0:
+            kept = np.random.choice([0,1], size = feat.shape, p = [1 - self.keep_prob, self.keep_prob])
+            output = kept * feat
+        else:
+            output = feat
+        # Why need seed?
+            
         #############################################################################
         #                             END OF YOUR CODE                              #
         #############################################################################
@@ -282,7 +302,12 @@ class dropout(object):
         # TODO: Implement the backward pass of Dropout                              #
         # Store the output gradients in the variable dfeat provided above.          #
         #############################################################################
-
+        if self.is_training and self.keep_prob > 0:
+            dfeat = self.kept * dprev
+        else:
+            dfeat = dprev
+        
+        
         #############################################################################
         #                             END OF YOUR CODE                              #
         #############################################################################
