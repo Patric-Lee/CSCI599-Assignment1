@@ -46,7 +46,10 @@ class SmallFullyConnectedNetwork(Module):
     def __init__(self, keep_prob=0, dtype=np.float32, seed=None):
         self.net = sequential(
             ########## TODO: ##########
-
+            fc(4, 30, name="FirstLayerSmallFC"),
+            relu("FirstReLu"),
+            fc(30, 7, name = "SecondLayerSmallFC"),
+            relu("SecondReLu")
             ########### END ###########
         )
 
