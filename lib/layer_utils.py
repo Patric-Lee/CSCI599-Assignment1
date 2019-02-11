@@ -334,7 +334,12 @@ class cross_entropy(object):
         # TODO: Implement the forward pass of an CE Loss                            #
         # Store the loss in the variable loss provided above.                       #
         #############################################################################
-
+        loss = 0
+        for label_index, single_label in enumerate(label):
+            loss -= np.log(logit[label_index, single_label])
+        
+        if self.size_average:
+            loss /= feat.shape[0]
         #############################################################################
         #                             END OF YOUR CODE                              #
         #############################################################################
@@ -352,7 +357,15 @@ class cross_entropy(object):
         # TODO: Implement the backward pass of an CE Loss                           #
         # Store the output gradients in the variable dlogit provided above.         #
         #############################################################################
-
+        dlogit = logit
+        
+        for label_index, single_label in enumerate(label):
+            dlogit[label_index, single_label] -= 1
+        
+        
+        if self.size_average:
+            dlogit /= label.shape[0]
+        
         #############################################################################
         #                             END OF YOUR CODE                              #
         #############################################################################
@@ -367,7 +380,14 @@ def softmax(feat):
     #############################################################################
     # TODO: Implement the forward pass of a softmax function                    #
     #############################################################################
-
+    feat_max = np.reshape(np.amax(feat, axis = 1), (-1, 1))
+    
+    feat = feat - np.matmul(feat_max - 1, np.ones((1, feat.shape[-1])))
+    feat = np.exp(feat)
+    sum_exp = np.reshape(np.sum(feat, axis = -1), (-1, 1))
+    scores = feat / sum_exp
+    
+    
     #############################################################################
     #                             END OF YOUR CODE                              #
     #############################################################################
